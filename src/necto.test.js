@@ -13,6 +13,7 @@ describe('Necto', () => {
       expect(test).toHaveProperty('Actions.mergeDataFromApi');
     });
   });
+
   describe('createFlow', () => {
     it('should attach an action and a constant to the instance', () => {
       const test = new Necto('test');
@@ -24,9 +25,11 @@ describe('Necto', () => {
     it('should handle error objects', () => {
       const test = new Necto('test');
       test.createFlow('someFlow');
-      const error = new Error('SomeFlowError');
-
-      console.log(test.Actions.someFlow('description', error));
+      const errorName = 'SomeFlowError';
+      const error = new Error(errorName);
+      expect(test.Actions.someFlow('description', error).payload.message).toBe(
+        errorName
+      );
     });
   });
 
@@ -50,8 +53,29 @@ describe('Necto', () => {
     it('should return a plain object when a action is called', () => {
       const test = new Necto('test');
       test.createFlow('someFlow');
-      console.log(test.Actions.someFlow('hello world'));
+      const description = 'some interaction';
+      const action = test.Actions.someFlow(description);
+      expect(action).toHaveProperty('payload', {});
+      expect(action).toHaveProperty('meta', null);
+      expect(action).toHaveProperty('_actionType', 'TEST/SOME_FLOW');
+      expect(action).toHaveProperty('_interaction', description);
+      expect(action).toHaveProperty('_requiredParams', []);
+      expect(action).toHaveProperty('_async', false);
     });
+
+    // it('should throw ', () => {
+    //   jest.spyOn(global.console, 'error').mockImplementation(() => {});
+    //   const test = new Necto('test');
+    //   test.createFlow('someFlow', (state, action) => ({
+    //     ...state,
+    //     foo: action.foo
+    //   }), {
+    //     requiredParams: {
+
+    //     }
+    //   });
+
+    // });
   });
 });
 

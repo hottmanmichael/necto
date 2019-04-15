@@ -16,13 +16,30 @@ const throwRequiredParamWarning = (
 };
 
 const validateParam = (actionResult, getterString, actionName) => {
-  if (!get(actionResult, getterString))
+  let nestedValue = get(actionResult, getterString);
+  if (nestedValue !== 0 && nestedValue !== false && !nestedValue)
     throwRequiredParamWarning(actionResult, getterString, actionName);
 };
 
+const validateEachItemInParamArray = ({
+  requiredParams,
+  actionResult,
+  actionName,
+}) => {
+  if (Array.isArray(requiredParams) && requiredParams.length) {
+    requiredParams.forEach(param => {
+      try {
+        validateParam(actionResult, param, actionName);
+      } catch (e) {
+        console.error(e);
+      }
+    });
+  }
+};
+
 const ensureRequiredParameters = ({
-  actionName = throwIfMissing('actionName', 'ensureRequiredParameters'),
-  actionResult = throwIfMissing('actionResult', 'ensureRequiredParameters'),
+  actionName = throwIfMissing('actionName', 'ensureRequiredParams'),
+  actionResult = throwIfMissing('actionResult', 'ensureRequiredParams'),
   requiredParams = null,
   shouldSilenceErrors = false,
 }) => {
@@ -34,14 +51,26 @@ const ensureRequiredParameters = ({
     return actionResult;
   }
 
-  if (Array.isArray(requiredParams) && requiredParams.length) {
-    requiredParams.forEach(param => {
-      try {
-        validateParam(actionResult, param, actionName);
-      } catch (e) {
-        console.error(e);
-      }
-    });
+  if (Array.isArray(requiredParams)) {
+    validateEachItemInParamArray({ requiredParams, actionResult, actionName });
+  } else {
+    const { payload, meta } = requiredParams;
+    if (payload && isFunction(payload.map)) {
+      const pl = payload.map(p => `payload.${p}`);
+      validateEachItemInParamArray({
+        requiredParams: pl,
+        actionResult,
+        actionName,
+      });
+    }
+    if (meta && isFunction(meta.map)) {
+      const mt = meta.map(p => `meta.${p}`);
+      validateEachItemInParamArray({
+        requiredParams: mt,
+        actionResult,
+        actionName,
+      });
+    }
   }
 
   return actionResult;
