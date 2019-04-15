@@ -304,16 +304,12 @@ export default function* rootSaga() {
 
 - `name` (_String_): Action function name (only valid function names allowed)
 - `flowPath` (_FlowPath_)
-- `[options]` (_CreateFlowOptions_):
-
-  #### `FlowPath`
-
   (_Function_) defined as either `function (state, action)` OR `function*(action)`. Necto checks the actual names of the arguemnts that are passed into this function and decides what type of flow path to create. e.g. `function (a, b)` will throw an error on flow creation.
 
   1. Reducer Function: Takes the paramters `(state, action)` and should return a new slice of the state
   2. Saga Generator Function: Takes the parameter (action), should be a generator function (`function*() {}`) and can handle any asynchronous code that a normal saga function can.
 
-  #### `[CreateFlowOptions]`
+- `[options]` (_CreateFlowOptions_):
 
   (_Object_) Optional
 
