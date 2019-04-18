@@ -98,9 +98,9 @@ class Necto {
 
   // @overrideable
   _getInitialState(initialState) {
-    const state = this.getInitialState();
+    const state = this.getInitialState() || {};
     return {
-      ...getInitialState,
+      ...state,
       ...initialState,
     };
   }
