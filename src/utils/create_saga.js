@@ -8,6 +8,10 @@ const defaultOptions = {
   watch: undefined,
 };
 
+const getPattern = constant => action => {
+  return action._actionType === constant;
+};
+
 function createSaga(
   constant = throwIfMissing('constant', 'createSaga'),
   fn = throwIfMissing('fn', 'createSaga'),
@@ -29,13 +33,17 @@ function createSaga(
 
   const options = Object.assign({}, defaultOptions, _options);
 
+  console.log('constant', constant);
+  console.log('fn', fn);
+  console.log('_options', options);
+
   var watch;
   if (options.watch && isFunction(options.watch)) {
     watch = options.watch;
   } else {
     const method = options.yield === 'takeEvery' ? takeEvery : takeLatest;
     watch = function* watch() {
-      yield method(constant, fn);
+      yield method(getPattern(constant), fn);
     };
   }
 
