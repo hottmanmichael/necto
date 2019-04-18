@@ -14,7 +14,7 @@ const callHandler = (handlers, state, action) => name => {
   }
 };
 
-const validateHandler = handlers => (name, action) =>
+const validateHandler = (handlers, action) => name =>
   handlers.hasOwnProperty(action[name]) && isFunction(handlers[action[name]]);
 
 export default function createReducer(initialState, handlers) {
