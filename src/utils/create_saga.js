@@ -5,7 +5,7 @@ import throwIfMissing from './throw_if_missing';
 
 const defaultOptions = {
   yield: 'takeEvery',
-  watch: undefined,
+  getWatch: undefined,
 };
 
 const getPattern = constant => action => {
@@ -33,13 +33,9 @@ function createSaga(
 
   const options = Object.assign({}, defaultOptions, _options);
 
-  console.log('constant', constant);
-  console.log('fn', fn);
-  console.log('_options', options);
-
   var watch;
-  if (options.watch && isFunction(options.watch)) {
-    watch = options.watch;
+  if (options.getWatch && isFunction(options.getWatch)) {
+    watch = options.getWatch(constant, fn, options);
   } else {
     const method = options.yield === 'takeEvery' ? takeEvery : takeLatest;
     watch = function* watch() {
