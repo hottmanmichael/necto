@@ -109,7 +109,7 @@ class Necto {
   }
 
   // @overrideable
-  getInitialFlows(createFlow) {
+  _getInitialFlows(createFlow) {
     let flows = this.getInitialFlows(createFlow, this);
     return Array.isArray(flows) ? flows : [];
   }
