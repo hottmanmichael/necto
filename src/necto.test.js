@@ -6,12 +6,6 @@ describe('Necto', () => {
       const test = new Necto('test');
       expect(test.name).toBe('test');
     });
-    it('should contain all default flows', () => {
-      const test = new Necto('test');
-      expect(test).toHaveProperty('Actions.isLoading');
-      expect(test).toHaveProperty('Actions.isLoadingComplete');
-      expect(test).toHaveProperty('Actions.mergeDataFromApi');
-    });
   });
 
   describe('createFlow', () => {
@@ -34,6 +28,9 @@ describe('Necto', () => {
   });
 
   describe('Using Flows', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
     it('should throw when an action is called without an interaction description', () => {
       const test = new Necto('test');
       test.createFlow('someFlow');
@@ -61,6 +58,26 @@ describe('Necto', () => {
       expect(action).toHaveProperty('_interaction', description);
       expect(action).toHaveProperty('_requiredParams', []);
       expect(action).toHaveProperty('_async', false);
+    });
+
+    it('should do things', () => {
+      jest.spyOn(global.console, 'error').mockImplementation(() => {});
+      const test = new Necto('test');
+      const someFlow = test.createFlow('someFlow', (state, action) => {
+        return {
+          ...state,
+          foo: action.foo.bar,
+        };
+      });
+      const state = {
+        foo: 'bar',
+      };
+      const action = someFlow.action('example');
+
+      const reducers = test.getReducers();
+      reducers['test'](state, action);
+      expect(console.error).toHaveBeenCalledTimes(1);
+      expect(console.error).toHaveBeenCalledWith(expect.any(Error));
     });
 
     // it('should throw ', () => {
