@@ -1,7 +1,4 @@
 const getInitialState = (initialState = {}) => ({
-  isLoading: false,
-  isLoadingById: {},
-  byId: {},
   ...initialState,
 });
 

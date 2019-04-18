@@ -1,4 +1,5 @@
-// import regeneratorRuntime from 'regenerator-runtime';
+import regeneratorRuntime from 'regenerator-runtime';
+import { all, fork } from 'redux-saga/effects';
 import Case from 'case';
 import doCreateFlow from './utils/create_flow';
 import createSaga from './utils/create_saga';
@@ -16,13 +17,13 @@ class Necto {
 
     this.options = Object.assign(getOptions(), _options);
 
-    this.InitialState = this.getInitialState(this.options.initialState);
+    this.InitialState = this._getInitialState(this.options.initialState);
     this.Constants = {};
     this.Actions = {};
     this.Reducers = {};
     this.Sagas = {};
 
-    const initialFlows = this.getInitialFlows(doCreateFlow(this.name));
+    const initialFlows = this._getInitialFlows(doCreateFlow(this.name));
     if (Array.isArray(initialFlows)) {
       // FIXME: Validate that initialFlows is an array of flows?
       initialFlows.forEach(({ _internal }) => {
@@ -94,13 +95,26 @@ class Necto {
   formatNameConstant(name) {
     return Case.constant(name);
   }
+
   // @overrideable
-  getInitialState(initialState) {
-    return getInitialState(initialState);
+  _getInitialState(initialState) {
+    const state = this.getInitialState();
+    return {
+      ...getInitialState,
+      ...initialState,
+    };
   }
+  getInitialState() {
+    return {};
+  }
+
   // @overrideable
   getInitialFlows(createFlow) {
-    return getInitialFlows(createFlow, this);
+    let flows = this.getInitialFlows(createFlow, this);
+    return Array.isArray(flows) ? flows : [];
+  }
+  getInitialFlows(createFlow) {
+    return [];
   }
 
   /**
