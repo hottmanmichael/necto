@@ -1,4 +1,4 @@
-import isFunction from '../is_function';
+import isFunction, { isGeneratorFunction } from '../is_function';
 import ensureRequiredParams from '../ensure_required_params';
 import getArgs from '../get_args';
 import createSaga from '../create_saga';
@@ -48,13 +48,24 @@ export default key => {
       // update to the state tree with a reducer. This checks param names to
       // rather than length to enforce consitency and readability for createFlow.
       if (matchesReducerArgs) {
-        boundReducer = createFlowPath;
+        if (isGeneratorFunction(createFlowPath)) {
+          throw new Error(
+            `Could not create a valid flow path for ${actionType}. Reducer cannot be a generator function.`
+          );
+        } else {
+          boundReducer = createFlowPath;
+        }
       } else if (matchesSagaArgs) {
-        boundSaga = createSaga(actionType, createFlowPath, createFlowOptions);
+        if (!isGeneratorFunction(createFlowPath)) {
+          throw new Error(
+            `Could not create a valid flow path for ${actionType}. Saga must be a generator function.`
+          );
+        } else {
+          boundSaga = createSaga(actionType, createFlowPath, createFlowOptions);
+        }
       } else {
         throw new Error(
-          `Could not create a valid flow path for ${actionType}. 
-         Expected either (state, action) for a reducer or (action) for a saga, received ${flowPathArgs} instead.`
+          `Could not create a valid flow path for ${actionType}. Expected either (state, action) for a reducer or (action) for a saga, received ${flowPathArgs} instead.`
         );
       }
     }
