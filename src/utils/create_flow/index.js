@@ -1,3 +1,4 @@
+import Case from 'case';
 import isFunction, { isGeneratorFunction } from '../is_function';
 import ensureRequiredParams from '../ensure_required_params';
 import getArgs from '../get_args';
@@ -11,7 +12,7 @@ const defaultOptions = {
 
 export default key => {
   // FIXME: Should be customizable?
-  let reducerKey = key.toUpperCase();
+  let reducerKey = Case.constant(key);
 
   return function createFlow(
     createFlowName,
