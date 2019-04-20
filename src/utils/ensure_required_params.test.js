@@ -65,7 +65,7 @@ describe('ensureRequiredParams', () => {
       expect(resultB).toBe(actionResult);
     });
 
-    it('should return the action even if a console warning is thrown', () => {
+    it('should return the action even if a console error is thrown', () => {
       jest.spyOn(global.console, 'error').mockImplementation(() => {});
       let actionResult = Object.assign({}, baseAction, {
         payload: {},
@@ -92,7 +92,7 @@ describe('ensureRequiredParams', () => {
         jest.clearAllMocks();
       });
 
-      it('should throw a console warning if the action is called without required payload actions', () => {
+      it('should throw a console error if the action is called without required payload actions', () => {
         jest.spyOn(global.console, 'error').mockImplementation(() => {});
 
         let actionResult = Object.assign({}, baseAction, {
@@ -109,7 +109,7 @@ describe('ensureRequiredParams', () => {
         expect(console.error).toBeCalledWith(expect.any(Error));
       });
 
-      it('should throw a console warning if the action is called without required meta actions', () => {
+      it('should throw a console error if the action is called without required meta actions', () => {
         jest.spyOn(global.console, 'error').mockImplementation(() => {});
 
         let actionResult = Object.assign({}, baseAction, {
@@ -126,7 +126,7 @@ describe('ensureRequiredParams', () => {
         expect(console.error).toBeCalledWith(expect.any(Error));
       });
 
-      it('should throw a multiple console warnings if called without required multiple payload params', () => {
+      it('should throw a multiple console errors if called without required multiple payload params', () => {
         jest.spyOn(global.console, 'error').mockImplementation(() => {});
 
         let actionResult = Object.assign({}, baseAction, {
@@ -144,7 +144,7 @@ describe('ensureRequiredParams', () => {
         expect(console.error).toHaveBeenCalledTimes(2);
       });
 
-      it('should throw a multiple console warnings if called without required multiple payload and meta params', () => {
+      it('should throw a multiple console errors if called without required multiple payload and meta params', () => {
         jest.spyOn(global.console, 'error').mockImplementation(() => {});
 
         let actionResult = Object.assign({}, baseAction, {
@@ -214,7 +214,7 @@ describe('ensureRequiredParams', () => {
         jest.clearAllMocks();
       });
 
-      it('should throw a console warning if the action is called without required payload actions', () => {
+      it('should throw a console error if the action is called without required payload params', () => {
         jest.spyOn(global.console, 'error').mockImplementation(() => {});
 
         let actionResult = Object.assign({}, baseAction, {
@@ -233,7 +233,7 @@ describe('ensureRequiredParams', () => {
         expect(console.error).toBeCalledWith(expect.any(Error));
       });
 
-      it('should throw a console warning if the action is called without required meta actions', () => {
+      it('should throw a console error if the action is called without required meta params', () => {
         jest.spyOn(global.console, 'error').mockImplementation(() => {});
 
         let actionResult = Object.assign({}, baseAction, {
@@ -252,7 +252,7 @@ describe('ensureRequiredParams', () => {
         expect(console.error).toBeCalledWith(expect.any(Error));
       });
 
-      it('should throw a multiple console warnings if called without required multiple payload params', () => {
+      it('should throw multiple console errors if called without multiple required payload params', () => {
         jest.spyOn(global.console, 'error').mockImplementation(() => {});
 
         let actionResult = Object.assign({}, baseAction, {
@@ -272,7 +272,7 @@ describe('ensureRequiredParams', () => {
         expect(console.error).toHaveBeenCalledTimes(2);
       });
 
-      it('should throw a multiple console warnings if called without required multiple payload and meta params', () => {
+      it('should throw multiple console errors if called without required multiple payload and meta params', () => {
         jest.spyOn(global.console, 'error').mockImplementation(() => {});
 
         let actionResult = Object.assign({}, baseAction, {
@@ -291,6 +291,92 @@ describe('ensureRequiredParams', () => {
 
         expect(console.error).toBeCalledWith(expect.any(Error));
         expect(console.error).toHaveBeenCalledTimes(4);
+      });
+    });
+
+    describe('Function Pattern', () => {
+      beforeEach(() => {
+        jest.clearAllMocks();
+      });
+
+      it('should accept a function as the requirestParams option', () => {
+        jest.spyOn(global.console, 'error').mockImplementation(() => {});
+
+        let actionResult = Object.assign({}, baseAction, {
+          payload: {},
+          meta: {},
+        });
+
+        ensureRequiredParams({
+          actionResult,
+          requiredParams: () => {},
+          actionName: 'someAction',
+        });
+      });
+
+      it('should throw a console error if the action is called without required payload params', () => {
+        jest.spyOn(global.console, 'error').mockImplementation(() => {});
+
+        let actionResult = Object.assign({}, baseAction, {
+          payload: {},
+          meta: {},
+        });
+
+        ensureRequiredParams({
+          actionResult,
+          requiredParams: action => {
+            return ['payload.foo'];
+          },
+          actionName: 'someAction',
+        });
+
+        expect(console.error).toBeCalledWith(expect.any(Error));
+        expect(console.error).toHaveBeenCalledTimes(1);
+      });
+
+      it('should allow conditional payload params with a function', () => {
+        jest.spyOn(global.console, 'error').mockImplementation(() => {});
+
+        let actionResult = Object.assign({}, baseAction, {
+          payload: {
+            foo: 'foo',
+            bar: 'bar',
+            bang: 'bang',
+          },
+          meta: {},
+        });
+
+        ensureRequiredParams({
+          actionResult,
+          requiredParams: action => {
+            return action.payload.foo && action.payload.bar
+              ? { payload: ['bang'] }
+              : null;
+          },
+          actionName: 'someAction',
+        });
+
+        expect(console.error).not.toBeCalledWith(expect.any(Error));
+
+        let secondActionResult = Object.assign({}, baseAction, {
+          payload: {},
+          meta: {
+            foo: 'foo',
+            bar: 'bar',
+          },
+        });
+
+        ensureRequiredParams({
+          actionResult: secondActionResult,
+          requiredParams: action => {
+            return action.meta.foo && action.meta.bar
+              ? { payload: ['bang'] }
+              : null;
+          },
+          actionName: 'someAction',
+        });
+
+        expect(console.error).toBeCalledWith(expect.any(Error));
       });
     });
   });

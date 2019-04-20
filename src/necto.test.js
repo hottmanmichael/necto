@@ -150,7 +150,7 @@ describe('Necto', () => {
       const description = 'some interaction';
       const action = test.Actions.someFlow(description);
       expect(action).toHaveProperty('payload', {});
-      expect(action).toHaveProperty('meta', null);
+      expect(action).toHaveProperty('meta', {});
       expect(action).toHaveProperty('_actionType', 'TEST/SOME_FLOW');
       expect(action).toHaveProperty('_interaction', description);
       expect(action).toHaveProperty('_requiredParams', []);

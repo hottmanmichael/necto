@@ -80,7 +80,7 @@ export default key => {
     const boundAction = function bindAction(
       interaction = throwIfMissing('interaction', actionType),
       payload = {},
-      meta = null
+      meta = {}
     ) {
       if ('string' !== typeof interaction) {
         throw new Error(

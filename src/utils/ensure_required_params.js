@@ -47,6 +47,10 @@ const ensureRequiredParameters = ({
     return actionResult;
   }
 
+  if (isFunction(requiredParams)) {
+    requiredParams = requiredParams(actionResult);
+  }
+
   if (isEmpty(requiredParams)) {
     return actionResult;
   }

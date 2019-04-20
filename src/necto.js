@@ -5,8 +5,6 @@ import doCreateFlow from './utils/create_flow';
 import createSaga from './utils/create_saga';
 import createReducer from './utils/create_reducer';
 import getOptions from './options';
-import getInitialState from './utils/create_flow/state';
-import getInitialFlows from './utils/create_flow/get_initial_flows';
 import getArgs from './utils/get_args';
 import isFunction from './utils/is_function';
 
