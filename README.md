@@ -305,10 +305,33 @@ export default function* rootSaga() {
   2. Saga Generator Function: Takes the parameter (action), should be a generator function (`function*() {}`) and can handle any asynchronous code that a normal saga function can.
 
 - `[options]` (_Object_): Optional
-  - `requiredParams` (_Object_ or _Array {String}_):
+  - `requiredParams` (_Object_ or _Array {String}_ or _Function_):
     - `payload` (_Array {String}_): Any required payload parameters specified as dot-notation, like lodash.get. Validates if key exists and is not null or undefined.
     - `meta` (_Array {String}_): Any required meta parameters specified as dot-notation, like lodash.get. Validates if key exists and is not null or undefined.
-    - \*\* `requiredParams` can also be provided as an array of strings. Instead of `{payload: ['foo'], meta: ['bar']}`, you can pass in `['payload.foo','meta.bar']`
+    - \*\* `requiredParams` can also be provided as an array of strings or a function that returns any of these options
+      - `['payload.foo','meta.bar']`
+      - `(action) => { if (action.foo) return ['payload.bar']}`
+
+```js
+// Object pattern
+necto.createFlow('name', flowPath, {
+  requiredParams: {
+    payload: ['test'],
+  },
+});
+
+// Array pattern
+necto.createFlow('name', flowPath, {
+  requiredParams: ['payload.test'],
+});
+
+// Function pattern
+necto.createFlow('name', flowPath, {
+  requiredParams: action => {
+    return action.meta.foo && action.meta.bar ? ['payload.bang'] : null;
+  },
+});
+```
 
 ---
 
