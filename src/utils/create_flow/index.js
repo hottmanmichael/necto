@@ -35,39 +35,14 @@ export default key => {
     let boundReducer, boundSaga;
     const hasFlowPath = createFlowPath && isFunction(createFlowPath);
     const flowPathArgs = getArgs(createFlowPath);
-    const reducerArgs = ['state', 'action'];
-    const sagaArgs = ['action'];
-    const matchesReducerArgs =
-      JSON.stringify(flowPathArgs) === JSON.stringify(reducerArgs);
-    const matchesSagaArgs =
-      JSON.stringify(flowPathArgs) === JSON.stringify(sagaArgs);
+    const matchesReducerArgs = !isGeneratorFunction(createFlowPath);
+    const matchesSagaArgs = isGeneratorFunction(createFlowPath);
 
     if (hasFlowPath) {
-      // Create either a reducer or a saga based oon the createFlowPath param
-      // This is an intentional design pattern to ensure a flow either triggers
-      // a series of actions and async operations with a saga, or triggers an
-      // update to the state tree with a reducer. This checks param names to
-      // rather than length to enforce consitency and readability for createFlow.
-      if (matchesReducerArgs) {
-        if (isGeneratorFunction(createFlowPath)) {
-          throw new Error(
-            `Could not create a valid flow path for ${actionType}. Reducer cannot be a generator function.`
-          );
-        } else {
-          boundReducer = createFlowPath;
-        }
-      } else if (matchesSagaArgs) {
-        if (!isGeneratorFunction(createFlowPath)) {
-          throw new Error(
-            `Could not create a valid flow path for ${actionType}. Saga must be a generator function.`
-          );
-        } else {
-          boundSaga = createSaga(actionType, createFlowPath, createFlowOptions);
-        }
+      if (matchesSagaArgs) {
+        boundSaga = createSaga(actionType, createFlowPath, createFlowOptions);
       } else {
-        throw new Error(
-          `Could not create a valid flow path for ${actionType}. Expected either (state, action) for a reducer or (action) for a saga, received ${flowPathArgs} instead.`
-        );
+        boundReducer = createFlowPath;
       }
     }
 

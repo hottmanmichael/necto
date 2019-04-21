@@ -48,49 +48,6 @@ describe('Necto', () => {
       expect(someFlow.reducer).not.toBeDefined();
     });
 
-    it('should fail creation if an invalid flowPath argument is used', () => {
-      const name = 'test';
-      const test = new Necto(name);
-
-      // Valid
-      expect(() => {
-        const someFlow = test.createFlow('someFlow', function*(action) {});
-      }).not.toThrow();
-      expect(() => {
-        const someFlow = test.createFlow('someFlow', (state, action) => {});
-      }).not.toThrow();
-      expect(() => {
-        const someFlow = test.createFlow('someFlow', function(
-          state,
-          action
-        ) {});
-      }).not.toThrow();
-
-      // Invalid
-      expect(() => {
-        const someFlow = test.createFlow('someFlow', function(
-          test,
-          me,
-          out
-        ) {});
-      }).toThrow();
-      expect(() => {
-        const someFlow = test.createFlow('someFlow', function(
-          state,
-          { payload }
-        ) {});
-      }).toThrow();
-      expect(() => {
-        const someFlow = test.createFlow('someFlow', function*(state) {});
-      }).toThrow();
-      expect(() => {
-        const someFlow = test.createFlow('someFlow', function*(
-          state,
-          action
-        ) {});
-      }).toThrow();
-    });
-
     describe('Setting the _async property', () => {
       it('should set _async to false when there is not a flow path', () => {
         const name = 'test';
