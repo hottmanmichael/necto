@@ -8,6 +8,8 @@ const defaultOptions = {
   getWatch: undefined,
 };
 
+const validYields = ['takeEvery', 'takeLatest', 'takeLeading'];
+
 const getPattern = constant => action => {
   return action._actionType === constant;
 };
@@ -37,7 +39,8 @@ function createSaga(
   if (options.getWatch && isFunction(options.getWatch)) {
     watch = options.getWatch(constant, fn, options);
   } else {
-    const method = options.yield === 'takeEvery' ? takeEvery : takeLatest;
+    let method = options.yield;
+    if (!validYields.includes(method)) method = defaultOptions.yield;
     watch = function* watch() {
       yield method(getPattern(constant), fn);
     };
