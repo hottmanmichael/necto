@@ -4,10 +4,11 @@ import ensureRequiredParams from '../ensure_required_params';
 import getArgs from '../get_args';
 import createSaga from '../create_saga';
 import { formatActionNames } from './format_names';
-import throwIfMissing from '../throw_if_missing';
+import throwIfMissing, { throwConditionalIfMissing } from '../throw_if_missing';
 
 const defaultOptions = {
   requiredParams: [],
+  interactionRequired: true,
 };
 
 export default key => {
@@ -29,7 +30,7 @@ export default key => {
       options
     );
 
-    /* 
+    /*
       Determine Flow Path
     */
     let boundReducer, boundSaga;
@@ -46,24 +47,39 @@ export default key => {
       }
     }
 
-    /* 
-      Dispatchable Action Creator 
+    /*
+      Dispatchable Action Creator
 
       Action object compliant with "Flux Standard Action"
       https://github.com/redux-utilities/flux-standard-action
     */
     const boundAction = function bindAction(
-      interaction = throwIfMissing('interaction', actionType),
+      interaction = throwConditionalIfMissing(
+        options.interactionRequired,
+        'interaction',
+        actionType
+      ),
       payload = {},
       meta = {}
     ) {
-      if ('string' !== typeof interaction) {
+      if (options.interactionRequired && 'string' !== typeof interaction) {
         throw new Error(
           `Actions must contain an interaction description string as the first parameter.
           Expected a String, received ${interaction} instead.`
         );
       }
 
+      let type = `[${actionType}]`;
+      if ('string' === typeof interaction) {
+        type += ` ${interaction}`;
+      } else {
+        const [_p, _m] = arguments;
+        payload = _p;
+        meta = _m;
+        interaction = null;
+      }
+
+      // FIXME: Should this allow for non-object payload?
       var _payload = {
         payload,
       };
@@ -76,7 +92,7 @@ export default key => {
         actionResult: {
           ..._payload,
           meta,
-          type: `[${actionType}] ${interaction}`,
+          type,
           _actionType: actionType, // Stays constant, is listened to by createReducer to update tree
           _interaction: interaction, // Describes an interaction
           _requiredParams: options.requiredParams,

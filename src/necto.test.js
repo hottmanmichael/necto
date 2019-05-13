@@ -76,6 +76,7 @@ describe('Necto', () => {
     beforeEach(() => {
       jest.clearAllMocks();
     });
+
     it('should handle error objects as the payload', () => {
       const test = new Necto('test');
       test.createFlow('someFlow');
@@ -85,6 +86,7 @@ describe('Necto', () => {
         errorName
       );
     });
+
     it('should throw when an action is called without an interaction description', () => {
       const test = new Necto('test');
       test.createFlow('someFlow');
@@ -101,6 +103,14 @@ describe('Necto', () => {
       }).toThrow();
     });
 
+    it('should not throw when an action is called without an interaction description and interactionRequired is false', () => {
+      const test = new Necto('test');
+      test.createFlow('someFlow', () => ({}), { interactionRequired: false });
+      expect(() => {
+        test.Actions.someFlow();
+      }).not.toThrow();
+    });
+
     it('should return a plain object when a action is called', () => {
       const test = new Necto('test');
       test.createFlow('someFlow');
@@ -114,6 +124,31 @@ describe('Necto', () => {
       expect(action).toHaveProperty('_async', false);
     });
 
+    it('should use the interaction when interaction is not required', () => {
+      const test = new Necto('test');
+      test.createFlow('someFlow', () => ({}), { interactionRequired: false });
+      const interaction = 'This is a test.';
+      const payload = { foo: 'bar' };
+      const meta = { bar: 'foo' };
+      const action = test.Actions.someFlow(interaction, payload, meta);
+      expect(action.payload).toEqual(payload);
+      expect(action.meta).toEqual(meta);
+      expect(action._interaction).toEqual(interaction);
+      expect(action.type).toEqual(expect.stringContaining(interaction));
+      expect(action.type).toEqual(`[TEST/SOME_FLOW] ${interaction}`);
+    });
+
+    it('should reorder the interaction, payload, and meta arguments when interaction is not required and no interaction is used', () => {
+      const test = new Necto('test');
+      test.createFlow('someFlow', () => ({}), { interactionRequired: false });
+      const payload = { foo: 'bar' };
+      const meta = { bar: 'foo' };
+      const action = test.Actions.someFlow(payload, meta);
+      expect(action.payload).toEqual(payload);
+      expect(action.meta).toEqual(meta);
+      expect(action._interaction).toEqual(null);
+      expect(action.type).toEqual('[TEST/SOME_FLOW]');
+    });
     it('should throw a console warning if an error occurs in the reducer', () => {
       jest.spyOn(global.console, 'error').mockImplementation(() => {});
       const name = 'test';
