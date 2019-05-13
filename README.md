@@ -311,6 +311,8 @@ export default function* rootSaga() {
     - \*\* `requiredParams` can also be provided as an array of strings or a function that returns any of these options
       - `['payload.foo','meta.bar']`
       - `(action) => { if (action.foo) return ['payload.bar']}`
+  - `interactionRequired` (_Boolean_): Optional
+    -
 
 ```js
 // Object pattern

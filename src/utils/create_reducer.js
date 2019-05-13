@@ -1,6 +1,6 @@
 import isFunction from './is_function';
 
-const callHandler = (handlers, state, action) => name => {
+export const callHandler = (handlers, state, action) => name => {
   let value = state;
   try {
     const reducer = handlers[action[name]];
@@ -17,16 +17,20 @@ const callHandler = (handlers, state, action) => name => {
   return value;
 };
 
-const validateHandler = (handlers, action) => name =>
-  handlers.hasOwnProperty(action[name]) && isFunction(handlers[action[name]]);
+export const validateHandler = (handlers, action) => name =>
+  handlers &&
+  action &&
+  action[name] &&
+  handlers.hasOwnProperty(action[name]) &&
+  isFunction(handlers[action[name]]);
 
 export default function createReducer(initialState, handlers) {
   return function reducer(state = initialState, action) {
-    const doValidateHandler = validateHandler(handlers, action);
+    const isHandlerValid = validateHandler(handlers, action);
     const doCallHandler = callHandler(handlers, state, action);
-    if (doValidateHandler('_actionType')) {
+    if (isHandlerValid('_actionType')) {
       return doCallHandler('_actionType');
-    } else if (doValidateHandler('type')) {
+    } else if (isHandlerValid('type')) {
       return doCallHandler('type');
     } else {
       return state;

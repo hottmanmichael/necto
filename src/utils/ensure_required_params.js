@@ -8,15 +8,22 @@ const throwRequiredParamWarning = (
   getterString,
   actionName
 ) => {
-  let action = fullActionValue.type || actionName;
-  let message = `${action} expected to contain the parameter "${getterString}" but received the action (${JSON.stringify(
-    fullActionValue
-  )}) instead.`;
+  const { payload, meta, type } = fullActionValue;
+  const actionType = type || actionName;
+  const message = `${actionType} expected to contain the parameter "${getterString}" but received the following action instead.
+    ---
+    @payload
+    ${JSON.stringify(payload)}
+    ---
+    @meta
+    ${JSON.stringify(meta)}
+    ---
+  `;
   throw new Error(message);
 };
 
 const validateParam = (actionResult, getterString, actionName) => {
-  let nestedValue = get(actionResult, getterString);
+  const nestedValue = get(actionResult, getterString);
   if (nestedValue !== 0 && nestedValue !== false && !nestedValue)
     throwRequiredParamWarning(actionResult, getterString, actionName);
 };
