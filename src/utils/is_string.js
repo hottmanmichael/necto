@@ -1,3 +1,6 @@
 export default st => {
-  return st && ('string' === typeof st || st instanceof String);
+  return !!(
+    'undefined' !== st &&
+    ('string' === typeof st || st instanceof String)
+  );
 };

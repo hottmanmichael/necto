@@ -1,7 +1,6 @@
 import Case from 'case';
 import isFunction, { isGeneratorFunction } from '../is_function';
 import ensureRequiredParams from '../ensure_required_params';
-import getArgs from '../get_args';
 import createSaga from '../create_saga';
 import { formatActionNames } from './format_names';
 import throwIfMissing, { throwConditionalIfMissing } from '../throw_if_missing';
@@ -23,26 +22,21 @@ export default key => {
     // Merge with default options
     const options = Object.assign({}, defaultOptions, createFlowOptions);
 
-    // Format namesd
+    // Format names
     const { actionName, constantKey, actionType } = formatActionNames(
       createFlowName,
       reducerKey,
       options
     );
 
-    /*
-      Determine Flow Path
-    */
+    // Determine Flow Path
     let boundReducer, boundSaga;
     const hasFlowPath = createFlowPath && isFunction(createFlowPath);
-    const flowPathArgs = getArgs(createFlowPath);
-    const matchesReducerArgs = !isGeneratorFunction(createFlowPath);
-    const matchesSagaArgs = isGeneratorFunction(createFlowPath);
 
     if (hasFlowPath) {
-      if (matchesSagaArgs) {
+      if (isGeneratorFunction(createFlowPath)) {
         boundSaga = createSaga(actionType, createFlowPath, createFlowOptions);
-      } else {
+      } /* isReducer... */ else {
         boundReducer = createFlowPath;
       }
     }
@@ -96,7 +90,7 @@ export default key => {
           _actionType: actionType, // Stays constant, is listened to by createReducer to update tree
           _interaction: interaction, // Describes an interaction
           _requiredParams: options.requiredParams,
-          _async: !!(hasFlowPath && matchesSagaArgs),
+          _async: !!(hasFlowPath && isGeneratorFunction(createFlowPath)),
         },
       });
     };

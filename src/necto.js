@@ -4,8 +4,7 @@ import Case from 'case';
 import doCreateFlow from './utils/create_flow';
 import createSaga from './utils/create_saga';
 import createReducer from './utils/create_reducer';
-import getOptions from './options';
-import getArgs from './utils/get_args';
+import getDefaultOptions from './default_options';
 import isFunction from './utils/is_function';
 
 class Necto {
@@ -13,7 +12,7 @@ class Necto {
     this.name = name; // Reducer Slice Key
     this.nameConstant = this.formatNameConstant(name);
 
-    this.options = Object.assign(getOptions(), _options);
+    this.options = Object.assign(getDefaultOptions(), _options);
 
     this.InitialState = this._getInitialState(this.options.initialState);
     this.Constants = {};
@@ -48,9 +47,6 @@ class Necto {
   }
 
   addReducer(constant, reducerFn) {
-    const validReducerArgs = ['state', 'action'];
-    const reducerArgs = getArgs(reducerFn);
-
     if ('string' !== typeof constant) {
       throw new Error(
         `addReducer expected constant to be a string, instead got ${constant}`
@@ -60,12 +56,6 @@ class Necto {
     if (!isFunction(reducerFn)) {
       throw new Error(
         `addReducer expected a function, instead got ${reducerFn}`
-      );
-    }
-
-    if (JSON.stringify(reducerArgs) !== JSON.stringify(validReducerArgs)) {
-      throw new Error(
-        `addReducer expected the reducer function to have two arguments (state, action), instead got ${reducerArgs}`
       );
     }
 
