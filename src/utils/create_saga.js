@@ -1,5 +1,12 @@
 import regeneratorRuntime from 'regenerator-runtime';
-import { all, takeLatest, takeEvery, fork } from 'redux-saga/effects';
+import {
+  all,
+  fork,
+  takeEvery,
+  takeLatest,
+  takeLeading,
+  takeMaybe,
+} from 'redux-saga/effects';
 import isFunction, { isGeneratorFunction } from './is_function';
 import throwIfMissing from './throw_if_missing';
 
@@ -12,6 +19,21 @@ const validYields = ['takeEvery', 'takeLatest', 'takeLeading'];
 
 const getPattern = constant => action => {
   return action._actionType === constant;
+};
+
+const getMethod = methodName => {
+  switch (methodName) {
+    case 'takeEvery':
+      return takeEvery;
+    case 'takeLatest':
+      return takeLatest;
+    case 'takeLeading':
+      return takeLeading;
+    case 'takeMaybe':
+      return takeMaybe;
+    default:
+      return takeEvery;
+  }
 };
 
 function createSaga(
@@ -41,8 +63,9 @@ function createSaga(
   } else {
     let method = options.yield;
     if (!validYields.includes(method)) method = defaultOptions.yield;
+    let callableMethod = getMethod(method);
     watch = function* watch() {
-      yield method(getPattern(constant), fn);
+      yield callableMethod(getPattern(constant), fn);
     };
   }
 
