@@ -82,8 +82,10 @@ export default key => {
       // won't spread error properties
       if (payload instanceof Error) {
         _payload = {
-          message: payload.message,
-          stack: payload.stack,
+          payload: {
+            message: payload.message,
+            stack: payload.stack,
+          },
           error: true,
         }
       }
