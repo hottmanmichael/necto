@@ -68,15 +68,12 @@ export default key => {
         type += ` ${interaction}`;
       } else {
         const [_p, _m] = arguments;
-        payload = _p;
-        meta = _m;
+        payload = _p || {};
+        meta = _m || {};
         interaction = null;
       }
 
-      // FIXME: Should this allow for non-object payload?
-      var _payload = {
-        payload,
-      };
+      var _payload = {};
 
       // Handle Error Objects since spread syntax
       // won't spread error properties
@@ -88,6 +85,11 @@ export default key => {
           },
           error: true,
         }
+      } else {
+        // FIXME: Should this allow for non-object payload?
+        _payload = {
+          payload,
+        };
       }
 
       return ensureRequiredParams({
