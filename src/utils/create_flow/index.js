@@ -78,7 +78,15 @@ export default key => {
         payload,
       };
 
-      if (payload instanceof Error) _payload.error = true;
+      // Handle Error Objects since spread syntax
+      // won't spread error properties
+      if (payload instanceof Error) {
+        _payload = {
+          message: payload.message,
+          stack: payload.stack,
+          error: true,
+        }
+      }
 
       return ensureRequiredParams({
         actionName: createFlowName,
